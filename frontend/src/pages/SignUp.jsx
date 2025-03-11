@@ -1,12 +1,15 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signStart, signSuccess, signFailure } from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function SignUp() {
-  // State untuk menyimpan data form, pesan error, dan status loading
+  // State untuk menyimpan data form
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Fungsi untuk menangani perubahan input form
@@ -20,15 +23,13 @@ export default function SignUp() {
 
     // Validasi input form
     if (!formData.username || !formData.email || !formData.password) {
-      setErrorMessage(
-        "Harap lengkapi semua kolom untuk melanjutkan pendaftaran."
+      return dispatch(
+        signFailure("Harap lengkapi semua kolom untuk melanjutkan pendaftaran.")
       );
-      return;
     }
 
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      dispatch(signStart());
 
       // Mengirim permintaan POST ke endpoint signup
       const res = await fetch("/api/auth/signup", {
@@ -40,20 +41,19 @@ export default function SignUp() {
       // Jika respons tidak OK, tampilkan pesan error
       if (!res.ok) {
         const errorData = await res.json();
-        setErrorMessage(
-          errorData.message || "Terjadi kesalahan saat mendaftar."
+        dispatch(
+          signFailure(errorData.message || "Terjadi kesalahan saat mendaftar.")
         );
-        setLoading(false);
         return;
       }
 
       // Jika berhasil, navigasi ke halaman sign-in
-      setLoading(false);
+      const data = await res.json();
+      dispatch(signSuccess(data));
       navigate("/sign-in");
     } catch (error) {
       console.log(error.message);
-      setErrorMessage("Terjadi kesalahan saat mendaftar.");
-      setLoading(false);
+      dispatch(signFailure("Terjadi kesalahan saat mendaftar."));
     }
   };
 
@@ -114,6 +114,7 @@ export default function SignUp() {
               )}
               {!loading && "Sign Up"}
             </Button>
+            <OAuth />
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span className="">Sudah punya akun?</span>

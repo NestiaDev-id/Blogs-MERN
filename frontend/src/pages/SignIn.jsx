@@ -2,18 +2,12 @@ import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  signStart,
-  signSuccess,
-  signFailure,
-  logOut,
-} from "../redux/user/userSlice";
+import { signStart, signSuccess, signFailure } from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function SignIn() {
-  // State untuk menyimpan data form, pesan error, dan status loading
+  // State untuk menyimpan data form
   const [formData, setFormData] = useState({});
-  // const [errorMessage, setErrorMessage] = useState("");
-  // const [loading, setLoading] = useState(false);
   const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -29,14 +23,10 @@ export default function SignIn() {
 
     // Validasi input form
     if (!formData.email || !formData.password) {
-      // setErrorMessage("Harap lengkapi semua kolom untuk melanjutkan masuk.");
-
       return dispatch(signFailure("Harap lengkapi semua kolom untuk masuk."));
     }
 
     try {
-      // setLoading(true);
-      // setErrorMessage(null);
       dispatch(signStart());
 
       // Mengirim permintaan POST ke endpoint signin
@@ -49,20 +39,19 @@ export default function SignIn() {
       // Jika respons tidak OK, tampilkan pesan error
       if (!res.ok) {
         const errorData = await res.json();
-        setErrorMessage(errorData.message || "Terjadi kesalahan saat masuk.");
-        setLoading(false);
+        dispatch(
+          signFailure(errorData.message || "Terjadi kesalahan saat masuk.")
+        );
         return;
       }
 
       // Jika berhasil, navigasi ke halaman utama
-      // setLoading(false);
-      dispatch(signSuccess(await res.json()));
+      const data = await res.json();
+      dispatch(signSuccess(data));
       navigate("/");
     } catch (error) {
       console.log(error.message);
-      // setErrorMessage("Terjadi kesalahan saat masuk.");
-      // setLoading(false);
-      dispatch(signFailure(error.message));
+      dispatch(signFailure("Terjadi kesalahan saat masuk."));
     }
   };
 
@@ -114,6 +103,7 @@ export default function SignIn() {
               )}
               {!loading && "Sign In"}
             </Button>
+            <OAuth />
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span className="">Belum punya akun?</span>
