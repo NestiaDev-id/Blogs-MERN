@@ -1,5 +1,4 @@
 import express from "express";
-// import { PORT, mongoDBURL } from "./config.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
@@ -13,6 +12,16 @@ app.use(express.json());
 
 app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong!" });
+});
 
 mongoose
   .connect(process.env.MONGODB_URL)

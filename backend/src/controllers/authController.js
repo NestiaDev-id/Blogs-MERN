@@ -27,8 +27,7 @@ export const signup = async (req, res, next) => {
       password: hashedPassword,
     });
     await newUser.save();
-    // res.status(201).json({ message: "User created successfully" });
-    res.json("Signup successful");
+    res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     console.error("Terjadi Error saat Registrasi:", error.message);
     // next(error);
