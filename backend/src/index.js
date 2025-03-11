@@ -14,7 +14,7 @@ app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.json({ message: "Backend API is running" });
 });
 
 // Error handling middleware

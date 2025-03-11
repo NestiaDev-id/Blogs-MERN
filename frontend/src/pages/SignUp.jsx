@@ -3,44 +3,60 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
+  // State untuk menyimpan data form, pesan error, dan status loading
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Fungsi untuk menangani perubahan input form
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
+
+  // Fungsi untuk menangani submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validasi input form
     if (!formData.username || !formData.email || !formData.password) {
       setErrorMessage(
         "Harap lengkapi semua kolom untuk melanjutkan pendaftaran."
       );
+      return;
     }
+
     try {
       setLoading(true);
       setErrorMessage(null);
+
+      // Mengirim permintaan POST ke endpoint signup
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
 
-      if (data.success === false) {
-        return setErrorMessage(data.message);
+      // Jika respons tidak OK, tampilkan pesan error
+      if (!res.ok) {
+        const errorData = await res.json();
+        setErrorMessage(
+          errorData.message || "Terjadi kesalahan saat mendaftar."
+        );
+        setLoading(false);
+        return;
       }
+
+      // Jika berhasil, navigasi ke halaman sign-in
       setLoading(false);
-      if (res.ok) {
-        navigate("/sign-in");
-      }
+      navigate("/sign-in");
     } catch (error) {
       console.log(error.message);
       setErrorMessage("Terjadi kesalahan saat mendaftar.");
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen mt-20">
       <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">

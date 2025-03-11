@@ -1,4 +1,4 @@
-import User from "../models/blogsModel.js";
+import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/error.js";
@@ -7,7 +7,14 @@ export const signup = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
+    if (
+      !username ||
+      !email ||
+      !password ||
+      username === "" ||
+      email === "" ||
+      password === ""
+    ) {
       return res
         .status(400)
         .json({ message: "Field yang anda masukkan kosong" });
