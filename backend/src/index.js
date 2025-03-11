@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
+import { google } from "./controllers/authController.js";
 dotenv.config();
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
+app.use("/google", google);
 
 app.get("/", (req, res) => {
   res.json({ message: "Backend API is running" });
